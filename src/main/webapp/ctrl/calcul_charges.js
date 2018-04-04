@@ -56,7 +56,7 @@ charges.service('$scope', function () {
 	$scope.load_charges_htc = false;
 	$scope.tva = 10;
 	$scope.loadAllCharge = function(){
-		var last_day = new Date($scope.year, $scope.month -1 , 0,0,0,0,0,);
+		var last_day = new Date($scope.year, $scope.month -1 , 0,0,0,0,0);
 		for(var i = 1; i<=(last_day.getUTCDate());i++){
 			var d = new Date($scope.year, $scope.month-1 , i, 0, 0, 0, 0);
 			if(d.getDay() != 0 && d.getDay() !=6){
