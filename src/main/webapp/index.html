@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html ng-app="charges">
+<html >
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
     <script src="ctrl/calcul_charges.js"></script>
@@ -10,6 +10,7 @@
 
   </head>
   <body>
+  <div ng-app="charges">
 	<div ng-controller="ChargesController as todo">
 	  
       <table>
@@ -72,6 +73,6 @@
 	  </div>
 	  
 	  <button ng-click="export()">export</button></div>
-	  
+	  </div>
   </body>
 </html>
