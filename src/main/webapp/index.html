@@ -1,78 +1,98 @@
 <!doctype html>
 
-<html >
-  <head>
-    <script src="js/angular-min.1.6.1.js"></script>
-    <script src="ctrl/calcul_charges.js"></script>
-    <link rel="stylesheet" href="css/todo.css">
-	<script src="js/pdfmake.min.0.1.22.js"></script>
-	<script src="js/html2canvas.min.0.4.1.js"></script>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 
-  </head>
-  <body>
-  <div ng-app="charges">
-	<div ng-controller="ChargesController as todo">
-	  
-      <table>
-		<tr>
-			<th>Month</th><th>Year</th>
-		</tr>
-		<tr>
-			<th>
-				<select ng-model="month">
-					<option value="">---Please select---</option>
-					<option ng-repeat="x in months" value="{{x}}">{{translation(x)}}</option>
-				</select>
-			</th><th><select ng-model="year">
-					<option value="">---Please select---</option>
-					<option ng-repeat="x in [2017,2018,2019]" value="{{x}}">{{x}}</option>
-				</select></th>
-		</tr>
-		</table>
+<script src="js/angular-min.1.6.1.js"></script>
+<script src="ctrl/calcul_charges.js"></script>
+<link rel="stylesheet" href="css/todo.css">
+<script src="js/pdfmake.min.0.1.36.js"></script>
+<script src="js/html2canvas.min.0.4.1.js"></script>
 
-		<div ng-show="isMontYearSelected()">
-		<div id="exportthis">
-		<h2 >Calculer les Charges du mois : {{translation(month)}} {{year}} {{list_charge.length}}</h2>
-		<input type="checkbox" ng-click="loadChargesTTC()" ng-model="load_charges_ttc"/>TTC
-		<input type="checkbox" ng-click="loadChargesHTC()" ng-model="load_charges_htc"/>HTC 
-		<table>
-			<tr ng-show="isHTC()">
-				<th>N°</th><th>HTC</th>
-				<th>
-					TVA
-					<select ng-model="selectedTva" ng-change="update_tva_unit(selectedTva)">
-							<option ng-repeat="x in tva_unites" value="{{$index}}" >{{x}}</option>
-					</select>
-				</th><th>DATE</th>
-			</tr>
-			<tr ng-show="isTTC()">
-				<th>N°</th><th>TTC</th>
-				<th>
-					TVA
-					<select ng-model="selectedTva" ng-change="update_tva_unit(selectedTva)">
-							<option ng-repeat="x in tva_unites" value="{{$index}}" >{{x}}</option>
-					</select>
-				</th>
-				<th>DATE</th>
-			</tr>
-			<tr ng-repeat="user in getCharges()">
-				<td>{{$index + 1}} )</td>
-				<td ng-show="isHTC()"><input type="text" value="{{ user.htc }}"  ng-keyup="updateHTC($index,$event)"/></td>
-				<td ng-show="isTTC()"><input type="text" value="{{ user.ttc }}"  ng-keyup="updateTTC($index,$event)"/></td>
-				<td><input type="text" value="{{ user.tva }}"  ng-keyup="updateTVA($index,$event)"/>
-				<td><input type="date" id="calender" ng-model="calender" name="calender" value="{{ user.date | date:'yyyy-MM-dd' }}" placeholder="yyyy-MM-dd" ng-change="updateDATE($index,calender)" required ></input>
-				<span id="span_date" name="span_date" style="visibility:hidden;">{{ user.date | date:'dd/MM/yyyy' }}</span></td>
-				<td><input type="button" ng-click="deleteDay($index)" value= "Delete"></td>
-			</tr>
-			<tr>
-				<td>somme TTC : {{sommeTTC}} &euro;</td><td><button ng-click="onCalc()">Calculer</button><span style="pading: 0 8px;"/>
-				<button ng-show="isTTC() || isHTC()" ng-click="add()">Ajouter</button></td><td>somme HTC : {{sommeHTC}} &euro;</td>
-			</tr>
-		</table>
+</head>
+<body>
+	<div ng-app="charges">
+		<div ng-controller="ChargesController as todo">
+
+			<table>
+				<tr>
+					<th>Month</th>
+					<th>Year</th>
+				</tr>
+				<tr>
+					<th><select ng-model="month">
+							<option value="">---Please select---</option>
+							<option ng-repeat="x in months" value="{{x}}">{{translation(x)}}</option>
+					</select></th>
+					<th><select ng-model="year">
+							<option value="">---Please select---</option>
+							<option ng-repeat="x in [2017,2018,2019]" value="{{x}}">{{x}}</option>
+					</select></th>
+				</tr>
+			</table>
+
+			<div ng-show="isMontYearSelected()">
+				<div id="exportthis">
+					<h2>Calculer les Charges du mois : {{translation(month)}}
+						{{year}} {{list_charge.length}}</h2>
+					<input type="checkbox" ng-click="loadChargesTTC()"
+						ng-model="load_charges_ttc" />TTC <input type="checkbox"
+						ng-click="loadChargesHTC()" ng-model="load_charges_htc" />HTC
+					<table>
+						<tr ng-show="isHTC()">
+							<th>NÂ°</th>
+							<th>HTC</th>
+							<th>TVA <select ng-model="selectedTva"
+								ng-change="update_tva_unit(selectedTva)">
+									<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
+							</select>
+							</th>
+							<th>DATE</th>
+						</tr>
+						<tr ng-show="isTTC()">
+							<th>NÂ°</th>
+							<th>TTC</th>
+							<th>TVA <select ng-model="selectedTva"
+								ng-change="update_tva_unit(selectedTva)">
+									<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
+							</select>
+							</th>
+							<th>DATE</th>
+						</tr>
+						<tr ng-repeat="user in getCharges()">
+							<td>{{$index + 1}} )</td>
+							<td ng-show="isHTC()"><input type="text"
+								value="{{ user.htc }}" ng-keyup="updateHTC($index,$event)" /></td>
+							<td ng-show="isTTC()"><input type="text"
+								value="{{ user.ttc }}" ng-keyup="updateTTC($index,$event)" /></td>
+							<td><input type="text" value="{{ user.tva }}"
+								ng-keyup="updateTVA($index,$event)" />
+							<td><input type="text" id="calender" name="calender" value="{{ user.date | date:'dd/MM/yyyy' }}"
+								ng-keyup="updateDATE($index,calender)"
+							></input> <!-- <span id="span_date" name="span_date"
+								style="visibility: hidden;">{{ user.date |
+									date:'dd/MM/yyyy' }}</span> --></td>
+							<td><input type="button" ng-click="deleteDay($index)"
+								value="Delete"></td>
+						</tr>
+						<tr>
+							<td>somme TTC : {{sommeTTC}} &euro;</td>
+							<td><button ng-click="onCalc()">Calculer</button>
+								<span style="pading: 0 8px;" />
+								<button ng-show="isTTC() || isHTC()" ng-click="add()">Ajouter</button></td>
+							<td>somme HTC : {{sommeHTC}} &euro;</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<button ng-click="export()">export</button>
 		</div>
-	  </div>
-	  
-	  <button ng-click="export()">export</button></div>
-	  </div>
-  </body>
+	</div>
+</body>
 </html>

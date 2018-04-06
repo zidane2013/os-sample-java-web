@@ -104,10 +104,10 @@ charges.service('$scope', function () {
 			if($scope.load_charges_ttc){
 				if(cchr.tva_unit == 0){ // euros
 					$scope.sommeTTC  += cchr.ttc;
-					$scope.sommeHTC  += cchr.ttc -  $scope.tva;
+					$scope.sommeHTC  += cchr.ttc !=0 ? ( cchr.ttc -  cchr.tva) : 0;
 				}else if(cchr.tva_unit == 1){ // pourcentage
 					$scope.sommeTTC  += cchr.ttc;
-					$scope.sommeHTC  += cchr.ttc - (cchr.ttc * $scope.tva / 100);
+					$scope.sommeHTC  += cchr.ttc !=0 ? (cchr.ttc - (cchr.ttc * cchr.tva / 100)) : 0;
 				}
 				if($scope.sommeTTC==0){
 					$scope.sommeHTC=0;
@@ -115,9 +115,9 @@ charges.service('$scope', function () {
 			}
 			if($scope.load_charges_htc){
 				if(cchr.tva_unit == 0){// euros
-					$scope.sommeTTC  += cchr.htc + cchr.tva ;
+					$scope.sommeTTC  += cchr.htc!= 0 ? (cchr.htc + cchr.tva) : 0 ;
 				}else if(cchr.tva_unit == 1){// pourcentage
-					$scope.sommeTTC  += cchr.htc + (cchr.htc * $scope.tva / 100);
+					$scope.sommeTTC  += cchr.htc!= 0 ? (cchr.htc + (cchr.htc * cchr.tva / 100)) : 0;
 				}
 				$scope.sommeHTC  += cchr.htc;
 				if($scope.sommeHTC==0){
@@ -131,7 +131,7 @@ charges.service('$scope', function () {
 		list_charge[index].date = event;
 	};
 	$scope.updateTTC  = function(index,event) {
-		list_charge[index].htt = Number(event.target.value);
+		list_charge[index].ttc = Number(event.target.value);
 	};
 	$scope.updateHTC  = function(index,event) {
 		list_charge[index].htc = Number(event.target.value);
@@ -171,11 +171,11 @@ charges.service('$scope', function () {
 		}
 		angular.forEach(list_charge, function(cchr) {
 			if(visibile){
-				document.getElementsByName("span_date")[index].style.visibility = "visible"; 
+				//document.getElementsByName("span_date")[index].style.visibility = "visible"; 
 				document.getElementsByName("calender")[index].style.visibility = "hidden"; 
 				document.getElementsByName("calender")[index].style.width = "2px"; 		
 			}else{
-				document.getElementsByName("span_date")[index].style.visibility = "hidden"; 
+				//document.getElementsByName("span_date")[index].style.visibility = "hidden"; 
 				document.getElementsByName("calender")[index].style.visibility = "visible"; 
 				document.getElementsByName("calender")[index].style.width = $scope.last_width+"px";
 			}
@@ -186,22 +186,22 @@ charges.service('$scope', function () {
 		}
 	}
 	
-	 $scope.data=  [];
+	 $scope.data=  ['kjkcvwx'];
 	 
 	$scope.export = function(){
 		// unhiden date to a fiche it in pdf
-		$scope.unHidenDate(true);
+		//$scope.unHidenDate(true);
         html2canvas(document.getElementById('exportthis'), {
             onrendered: function (canvas) {
-                var data = canvas.toDataURL();
+                //var data = canvas.toDataURL();
                 var docDefinition = {
                     content: [{
-                        image: data,
+                        image: $scope.data,
                         width: 1000,
                     }]
                 };
                 pdfMake.createPdf(docDefinition).download("test.pdf");
-				$scope.unHidenDate(false);
+				//$scope.unHidenDate(false);
             }
         });
      }
