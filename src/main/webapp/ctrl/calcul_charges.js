@@ -31,11 +31,11 @@ charges.service('$scope', function () {
 	$scope.months = ['0','1','2','3','4','5','6','7','8','9','10','11','12'];
 	$scope.langues = ['en','fr'];
 	$scope.langue = 'fr';
-	var list_charge = [];
+	$scope.list_charge = [];
 	$scope.charge = [];
-	$scope.cnt = 0;
 	$scope.tva_unites = ['\u20ac','%'];
 	$scope.selectedTva = '0';
+	$scope.currentIndex = 0;
 
 	$scope.translation = function(code) {
 		// wich langue ?
@@ -55,28 +55,36 @@ charges.service('$scope', function () {
 	$scope.load_charges_ttc = false;
 	$scope.load_charges_htc = false;
 	$scope.tva = 10;
-	$scope.loadAllCharge = function(){
+	$scope.loadAllCharge = function(startDate){
+		//$scope.list_charge = [];
 		var last_day = new Date($scope.year, $scope.month -1 , 0,0,0,0,0);
 		for(var i = 1; i<=(last_day.getUTCDate());i++){
-			var d = new Date($scope.year, $scope.month-1 , i, 0, 0, 0, 0);
+			var d = new Date($scope.year, $scope.month-1 ,i, 0, 0, 0, 0);
+			if(startDate >= d.getDate()){
+				continue;
+			}
 			if(d.getDay() != 0 && d.getDay() !=6){
-				list_charge.push({
+				$scope.list_charge.push({
 					tva : 10,
 					tva_unit : $scope.selectedTva,
 					htc : 0,
 					ttc : 0,
 					date : d
 				});
+				break;
+			}else{
+				continue;
 			}
 		}
+
 	}
 
 	$scope.loadChargesTTC  = function() {
 		//$scope.load_charges_ttc = !$scope.load_charges_ttc;
 		$scope.load_charges_htc = false;
-		list_charge = [];
+		$scope.list_charge = [];
 		if($scope.load_charges_ttc || $scope.load_charges_htc){
-			$scope.loadAllCharge();
+			$scope.loadAllCharge(0);
 		}		
 	}
 	$scope.isHTC = function() {
@@ -88,19 +96,19 @@ charges.service('$scope', function () {
 	$scope.loadChargesHTC  = function() {
 		$scope.load_charges_ttc = false;
 		//$scope.load_charges_htc = !$scope.load_charges_htc;
-		list_charge = [];
+		$scope.list_charge = [];
 		if($scope.load_charges_ttc || $scope.load_charges_htc){
-			$scope.loadAllCharge();
+			$scope.loadAllCharge(0);
 		}		
 	}
 	$scope.getCharges  = function() {
-		return list_charge;
+		return $scope.list_charge;
 	};
 	
 	$scope.onCalc  = function() {
 		$scope.sommeTTC = 0;
 		$scope.sommeHTC = 0;
-		angular.forEach(list_charge, function(cchr) {
+		angular.forEach($scope.list_charge, function(cchr) {
 			if($scope.load_charges_ttc){
 				if(cchr.tva_unit == 0){ // euros
 					$scope.sommeTTC  += cchr.ttc;
@@ -128,39 +136,49 @@ charges.service('$scope', function () {
 	};
 
 	$scope.updateDATE  = function(index,event) {
-		list_charge[index].date = event;
+		$scope.list_charge[index].date = event;
 	};
 	$scope.updateTTC  = function(index,event) {
-		list_charge[index].ttc = Number(event.target.value);
+		$scope.list_charge[index].ttc = Number(event.target.value);
 	};
 	$scope.updateHTC  = function(index,event) {
-		list_charge[index].htc = Number(event.target.value);
+		$scope.list_charge[index].htc = Number(event.target.value);
 	};
 	$scope.updateTVA  = function(index,event) {
-		list_charge[index].tva = Number(event.target.value);;
+		$scope.list_charge[index].tva = Number(event.target.value);;
 	};
 	
 	$scope.update_tva_unit   = function(index){
 		selectedTva = index;
-		angular.forEach(list_charge, function(cchr) {
+		angular.forEach($scope.list_charge, function(cchr) {
 			cchr.tva_unit = index;
 		});
 	}
 	
-	$scope.deleteDay = function(val) {
-		list_charge.splice(val, 1);
-		$scope.onCalc();
+	$scope.deleteDay = function(index) {
+		$scope.list_charge.splice(val, 1);
+
+	};	
+	
+	$scope.duplicateDay = function(index) {
+		val = {};
+		val.tva = $scope.list_charge[index].tva;
+		val.tva_unit = $scope.list_charge[index].tva_unit;
+		val.htc = $scope.list_charge[index].htc;
+		val.ttc = $scope.list_charge[index].ttc;
+		val.date = $scope.list_charge[index].date;
+		$scope.list_charge.splice(index+1,0,val);
 	};
 	
 
 	$scope.add = function() {
-		list_charge.push({
-			tva : 10,
-			tva_unit : $scope.selectedTva,
-			htc : 0,
-			ttc : 0,
-			date : ''
-		});
+		
+		if($scope.list_charge==undefined || $scope.list_charge.length==0){
+			$scope.loadAllCharge(0);
+		}else{
+			var startDate = $scope.list_charge[$scope.list_charge.length-1].date;
+			$scope.loadAllCharge(startDate.getDate());
+		}
 	};
 	$scope.last_width=0; 
 	$scope.unHidenDate = function(visibile){
@@ -169,7 +187,7 @@ charges.service('$scope', function () {
 			var list = document.getElementsByName("calender");
 			$scope.last_width = list[index].offsetWidth;
 		}
-		angular.forEach(list_charge, function(cchr) {
+		angular.forEach($scope.list_charge, function(cchr) {
 			if(visibile){
 				//document.getElementsByName("span_date")[index].style.visibility = "visible"; 
 				document.getElementsByName("calender")[index].style.visibility = "hidden"; 
@@ -188,22 +206,20 @@ charges.service('$scope', function () {
 	
 	 $scope.data=  ['kjkcvwx'];
 	 
+	$scope.saut_ligne = 10; 
 	$scope.export = function(){
-		// unhiden date to a fiche it in pdf
-		//$scope.unHidenDate(true);
-        html2canvas(document.getElementById('exportthis'), {
-            onrendered: function (canvas) {
-                //var data = canvas.toDataURL();
-                var docDefinition = {
-                    content: [{
-                        image: $scope.data,
-                        width: 1000,
-                    }]
-                };
-                pdfMake.createPdf(docDefinition).download("test.pdf");
-				//$scope.unHidenDate(false);
-            }
-        });
+		var doc = new jsPDF();
+		
+		var saut_ligne_next = $scope.saut_ligne;
+		var header = 'Les Charges de ' + $scope.translation($scope.month) + ' ' + $scope.year;
+		doc.text(header, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		doc.text('TTC   |    HTC   |    TVA   |    DATE', 10, saut_ligne_next);saut_ligne_next +=5;
+		doc.text('____      _____      _____      ______', 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		angular.forEach($scope.list_charge, function(cchr) {
+			var text = cchr.ttc +'      |     '+ cchr.htc +'     |     '+ cchr.tva +'     |        '+ cchr.date.getFullYear()+'-'+(cchr.date.getMonth()<9 ? '0'+(cchr.date.getMonth()+1) : (cchr.date.getMonth()+1))+'-'+(cchr.date.getDate()<10? '0'+cchr.date.getDate(): cchr.date.getDate());
+			doc.text(text, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		});
+		doc.save('a4.pdf')
      }
 	
 });

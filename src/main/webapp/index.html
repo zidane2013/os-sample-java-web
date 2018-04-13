@@ -11,10 +11,10 @@
 <script src="js/angular-min.1.6.1.js"></script>
 <script src="ctrl/calcul_charges.js"></script>
 <link rel="stylesheet" href="css/todo.css">
-<script src="js/pdfmake.min.0.1.22.js"></script>
-<script src="js/html2canvas.min.0.4.1.js"></script>
+<script src="js/jspdf.min.js"></script>
 
-</head>
+
+  </head>
 <body>
 	<div ng-app="charges">
 		<div ng-controller="ChargesController as todo">
@@ -31,7 +31,7 @@
 					</select></th>
 					<th><select ng-model="year">
 							<option value="">---Please select---</option>
-							<option ng-repeat="x in [2017,2018,2019]" value="{{x}}">{{x}}</option>
+							<option ng-repeat="x in [2018,2019,2000,2001,2002]" value="{{x}}">{{x}}</option>
 					</select></th>
 				</tr>
 			</table>
@@ -43,7 +43,7 @@
 					<input type="checkbox" ng-click="loadChargesTTC()"
 						ng-model="load_charges_ttc" />TTC <input type="checkbox"
 						ng-click="loadChargesHTC()" ng-model="load_charges_htc" />HTC
-					<table>
+					<table id="customers">
 						<tr ng-show="isHTC()">
 							<th>N°</th>
 							<th>HTC</th>
@@ -64,7 +64,7 @@
 							</th>
 							<th>DATE</th>
 						</tr>
-						<tr ng-repeat="user in getCharges()">
+						<tr ng-repeat="user in list_charge track by $index">
 							<td>{{$index + 1}} )</td>
 							<td ng-show="isHTC()"><input type="text"
 								value="{{ user.htc }}" ng-keyup="updateHTC($index,$event)" /></td>
@@ -73,18 +73,17 @@
 							<td><input type="text" value="{{ user.tva }}"
 								ng-keyup="updateTVA($index,$event)" />
 							<td><input type="text" id="calender" name="calender" value="{{ user.date | date:'dd/MM/yyyy' }}"
-								ng-keyup="updateDATE($index,calender)"
-							></input> <!-- <span id="span_date" name="span_date"
-								style="visibility: hidden;">{{ user.date |
-									date:'dd/MM/yyyy' }}</span> --></td>
+								ng-keyup="updateDATE($index,calender)"></input> </td>
 							<td><input type="button" ng-click="deleteDay($index)"
 								value="Delete"></td>
+							<td><input type="button" ng-click="duplicateDay($index)"
+								value="Duplicate"></td>
 						</tr>
 						<tr>
 							<td>somme TTC : {{sommeTTC}} &euro;</td>
 							<td><button ng-click="onCalc()">Calculer</button>
 								<span style="pading: 0 8px;" />
-								<button ng-show="isTTC() || isHTC()" ng-click="add()">Ajouter</button></td>
+								<button ng-show="isTTC() || isHTC()" ng-click="add()">Add next</button></td>
 							<td>somme HTC : {{sommeHTC}} &euro;</td>
 						</tr>
 					</table>
