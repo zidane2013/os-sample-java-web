@@ -25,8 +25,8 @@ charges.service('$scope', function () {
 	$scope.selected = false;
 	$scope.month = '';
 	$scope.year = '';
-	$scope.libelle_fr = ['Janvier','F\u00e9vrier','Mars','Avril','Mai','Juin','Juillet','Ao\u00fbt','Septembre','Octobre','Novembre','D\u00e9cembre'];
-	$scope.libelle_en = ['January','February','March','Avril','May','June','July','August','September','October','November','December'];
+	$scope.libelle_fr = ['---Veuillez s\u00e9lectionner select---','Janvier','F\u00e9vrier','Mars','Avril','Mai','Juin','Juillet','Ao\u00fbt','Septembre','Octobre','Novembre','D\u00e9cembre'];
+	$scope.libelle_en = ['---Please select---','January','February','March','Avril','May','June','July','August','September','October','November','December'];
 	$scope.libelle_code = ['0','1','2','3','4','5','6','7','8','9','10','11','12'];
 	$scope.months = ['0','1','2','3','4','5','6','7','8','9','10','11','12'];
 	$scope.langues = ['en','fr'];
@@ -36,15 +36,19 @@ charges.service('$scope', function () {
 	$scope.tva_unites = ['\u20ac','%'];
 	$scope.selectedTva = '0';
 	$scope.currentIndex = 0;
+	$scope.ttc_length = 1;
+	$scope.htc_length = 1;
+	$scope.tva_length = 1;
+	$scope.date_length = 0;
 
 	$scope.translation = function(code) {
 		// wich langue ?
 		if($scope.langue=='fr'){
 			//console.log($scope.libelle_fr[code-1]);
-			return $scope.libelle_fr[code-1];
+			return $scope.libelle_fr[code];
 		}else if($scope.langue=='en'){
 			//console.log($scope.libelle_fr[code-1]);
-			return $scope.libelle_en[code-1];
+			return $scope.libelle_en[code];
 		}
 	};
 	
@@ -80,7 +84,6 @@ charges.service('$scope', function () {
 	}
 
 	$scope.loadChargesTTC  = function() {
-		//$scope.load_charges_ttc = !$scope.load_charges_ttc;
 		$scope.load_charges_htc = false;
 		$scope.list_charge = [];
 		if($scope.load_charges_ttc || $scope.load_charges_htc){
@@ -95,7 +98,6 @@ charges.service('$scope', function () {
 	}
 	$scope.loadChargesHTC  = function() {
 		$scope.load_charges_ttc = false;
-		//$scope.load_charges_htc = !$scope.load_charges_htc;
 		$scope.list_charge = [];
 		if($scope.load_charges_ttc || $scope.load_charges_htc){
 			$scope.loadAllCharge(0);
@@ -123,9 +125,11 @@ charges.service('$scope', function () {
 			}
 			if($scope.load_charges_htc){
 				if(cchr.tva_unit == 0){// euros
-					$scope.sommeTTC  += cchr.htc!= 0 ? (cchr.htc + cchr.tva) : 0 ;
+					cchr.ttc = cchr.htc!= 0 ? (cchr.htc + cchr.tva) : 0;
+					$scope.sommeTTC  +=  cchr.ttc;
 				}else if(cchr.tva_unit == 1){// pourcentage
-					$scope.sommeTTC  += cchr.htc!= 0 ? (cchr.htc + (cchr.htc * cchr.tva / 100)) : 0;
+					cchr.ttc = cchr.htc!= 0 ? (cchr.htc + (cchr.htc * cchr.tva / 100)) : 0;
+					$scope.sommeTTC  += cchr.ttc;
 				}
 				$scope.sommeHTC  += cchr.htc;
 				if($scope.sommeHTC==0){
@@ -140,12 +144,15 @@ charges.service('$scope', function () {
 	};
 	$scope.updateTTC  = function(index,event) {
 		$scope.list_charge[index].ttc = Number(event.target.value);
+		console.log('index:'+index+',value:'+event.target.value+',ttc:'+$scope.list_charge[index].ttc);
 	};
 	$scope.updateHTC  = function(index,event) {
 		$scope.list_charge[index].htc = Number(event.target.value);
+		console.log('index:'+index+',value:'+event.target.value+',htc:'+$scope.list_charge[index].htc);
 	};
 	$scope.updateTVA  = function(index,event) {
 		$scope.list_charge[index].tva = Number(event.target.value);;
+		console.log('index:'+index+',value:'+event.target.value+',tva:'+$scope.list_charge[index].tva);
 	};
 	
 	$scope.update_tva_unit   = function(index){
@@ -156,7 +163,14 @@ charges.service('$scope', function () {
 	}
 	
 	$scope.deleteDay = function(index) {
-		$scope.list_charge.splice(val, 1);
+		$scope.list_charge.splice(index,1);
+		var str = '';
+		for(var i=0;i<$scope.list_charge.length-1;i++)
+			str+=$scope.list_charge[i].ttc+',';
+		if (typeof $scope.list_charge !== 'undefined' && $scope.list_charge.length > 0) {
+			str+=$scope.list_charge[$scope.list_charge.length-1].ttc;
+		}
+		console.log('index:'+index+',list:'+str);
 
 	};	
 	
@@ -167,7 +181,14 @@ charges.service('$scope', function () {
 		val.htc = $scope.list_charge[index].htc;
 		val.ttc = $scope.list_charge[index].ttc;
 		val.date = $scope.list_charge[index].date;
-		$scope.list_charge.splice(index+1,0,val);
+		$scope.list_charge.splice(index,0,val);
+		var str = '';
+		for(var i=0;i<$scope.list_charge.length-1;i++)
+			str+=$scope.list_charge[i].ttc+',';
+		if (typeof $scope.list_charge !== 'undefined' && $scope.list_charge.length > 0) {
+			str+=$scope.list_charge[$scope.list_charge.length-1].ttc;
+		}
+		console.log('val:{'+val.ttc+','+val.date+'},list:'+str);
 	};
 	
 
@@ -209,18 +230,68 @@ charges.service('$scope', function () {
 	$scope.saut_ligne = 10; 
 	$scope.export = function(){
 		var doc = new jsPDF();
-		
-		var saut_ligne_next = $scope.saut_ligne;
-		var header = 'Les Charges de ' + $scope.translation($scope.month) + ' ' + $scope.year;
-		doc.text(header, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
-		doc.text('TTC   |    HTC   |    TVA   |    DATE', 10, saut_ligne_next);saut_ligne_next +=5;
-		doc.text('____      _____      _____      ______', 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		$scope.onCalc();
 		angular.forEach($scope.list_charge, function(cchr) {
-			var text = cchr.ttc +'      |     '+ cchr.htc +'     |     '+ cchr.tva +'     |        '+ cchr.date.getFullYear()+'-'+(cchr.date.getMonth()<9 ? '0'+(cchr.date.getMonth()+1) : (cchr.date.getMonth()+1))+'-'+(cchr.date.getDate()<10? '0'+cchr.date.getDate(): cchr.date.getDate());
-			doc.text(text, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+			if(cchr.ttc.toString().length > $scope.ttc_length){$scope.ttc_length = cchr.ttc.toString().length; }
+			if(cchr.htc.toString().length > $scope.htc_length){$scope.htc_length = cchr.htc.toString().length; }
+			if(cchr.tva.toString().length > $scope.tva_length){$scope.tva_length = cchr.tva.toString().length; }
 		});
+		console.log("$scope.ttc_length:"+$scope.ttc_length);
+		console.log("$scope.htc_length:"+$scope.htc_length);
+		console.log("$scope.tva_length:"+$scope.tva_length);
+
+		var ttc_length_blanc=witeSpace1($scope.ttc_length);
+		var htc_length_blanc=witeSpace1($scope.htc_length);
+		var tva_length_blanc=witeSpace1($scope.tva_length);
+
+		var saut_ligne_next = $scope.saut_ligne;
+		var header = '******Les Charges de ' + $scope.translation($scope.month) + ' ' + $scope.year+'******';
+		doc.text(header, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		//doc.text('  TTC'+ttc_length_blanc+'|  '+'HTC'+htc_length_blanc+'|  '+'TVA'+tva_length_blanc+'|  '+'DATE', 10, saut_ligne_next);saut_ligne_next +=5;
+		doc.text('TTC', 10, saut_ligne_next);
+		doc.text('TTC', 50, saut_ligne_next);
+		doc.text('TTC', 90, saut_ligne_next);
+		doc.text('TTC', 120, saut_ligne_next);saut_ligne_next +=5;
+		doc.text('_________________________________________________', 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		angular.forEach($scope.list_charge, function(cchr) {
+			var dt1 = cchr.date.getFullYear()+'-'+(cchr.date.getMonth()<9 ? '0'+(cchr.date.getMonth()+1) : (cchr.date.getMonth()+1))+'-'+(cchr.date.getDate()<10? '0'+cchr.date.getDate(): cchr.date.getDate()); 
+			//var text = '  '+cchr.ttc +witeSpace(cchr.ttc,'TTC'+ttc_length_blanc)+cchr.htc + witeSpace(cchr.htc,'HTC'+htc_length_blanc)+ cchr.tva + witeSpace(cchr.tva,'TVA'+tva_length_blanc)+dt1;
+			doc.text(cchr.ttc+'', 10, saut_ligne_next);
+			doc.text(cchr.htc+'', 50, saut_ligne_next);
+			doc.text(cchr.tva+'', 90, saut_ligne_next);
+			doc.text(dt1, 120, saut_ligne_next);
+			saut_ligne_next +=$scope.saut_ligne;
+		});
+		doc.text('_________________________________________________', 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		doc.text('TTC TOTAL : '+$scope.sommeTTC, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
+		doc.text('HTC TOTAL : '+$scope.sommeHTC, 10, saut_ligne_next);saut_ligne_next +=$scope.saut_ligne;
 		doc.save('a4.pdf')
      }
+	 
+	 witeSpace = function(valNumber,maxValNumber){
+		var length_blanc = '';
+		/*for(var i=0;i<valNumber.toString().length;i++){
+			length_blanc+=' ';
+		}*/
+		for(var i=0 ;i<=(maxValNumber.length - valNumber.toString().length);i++){
+			length_blanc+=' ';
+		}
+		console.log(valNumber.toString().length+"'"+length_blanc+"'"+maxValNumber.length);
+		//console.log("'"+length_blanc+"'");
+		return length_blanc+'|  ';
+		
+	 }
+	 
+	 witeSpace1 = function(maxValNumber){
+		var length_blanc = '';
+		for(var i=0 ;i<maxValNumber;i++){
+			length_blanc+=' ';
+		}
+		console.log("'"+length_blanc+"'"+maxValNumber);
+		return length_blanc;
+		
+	 }
+		 
 	
 });
 

@@ -17,8 +17,8 @@
   </head>
 <body>
 	<div ng-app="charges">
-		<div ng-controller="ChargesController as todo">
-
+		<div ng-controller="ChargesController as todo" class="row">
+			<div class="col-9 col-s-9">
 			<table>
 				<tr>
 					<th>Month</th>
@@ -35,62 +35,60 @@
 					</select></th>
 				</tr>
 			</table>
-
-			<div ng-show="isMontYearSelected()">
-				<div id="exportthis">
-					<h2>Calculer les Charges du mois : {{translation(month)}}
-						{{year}} {{list_charge.length}}</h2>
-					<input type="checkbox" ng-click="loadChargesTTC()"
-						ng-model="load_charges_ttc" />TTC <input type="checkbox"
-						ng-click="loadChargesHTC()" ng-model="load_charges_htc" />HTC
-					<table id="customers">
-						<tr ng-show="isHTC()">
-							<th>N°</th>
-							<th>HTC</th>
-							<th>TVA <select ng-model="selectedTva"
-								ng-change="update_tva_unit(selectedTva)">
-									<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
-							</select>
-							</th>
-							<th>DATE</th>
-						</tr>
-						<tr ng-show="isTTC()">
-							<th>N°</th>
-							<th>TTC</th>
-							<th>TVA <select ng-model="selectedTva"
-								ng-change="update_tva_unit(selectedTva)">
-									<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
-							</select>
-							</th>
-							<th>DATE</th>
-						</tr>
-						<tr ng-repeat="user in list_charge track by $index">
-							<td>{{$index + 1}} )</td>
-							<td ng-show="isHTC()"><input type="text"
-								value="{{ user.htc }}" ng-keyup="updateHTC($index,$event)" /></td>
-							<td ng-show="isTTC()"><input type="text"
-								value="{{ user.ttc }}" ng-keyup="updateTTC($index,$event)" /></td>
-							<td><input type="text" value="{{ user.tva }}"
-								ng-keyup="updateTVA($index,$event)" />
-							<td><input type="text" id="calender" name="calender" value="{{ user.date | date:'dd/MM/yyyy' }}"
-								ng-keyup="updateDATE($index,calender)"></input> </td>
-							<td><input type="button" ng-click="deleteDay($index)"
-								value="Delete"></td>
-							<td><input type="button" ng-click="duplicateDay($index)"
-								value="Duplicate"></td>
-						</tr>
-						<tr>
-							<td>somme TTC : {{sommeTTC}} &euro;</td>
-							<td><button ng-click="onCalc()">Calculer</button>
-								<span style="pading: 0 8px;" />
-								<button ng-show="isTTC() || isHTC()" ng-click="add()">Add next</button></td>
-							<td>somme HTC : {{sommeHTC}} &euro;</td>
-						</tr>
-					</table>
+			</div>
+			<div ng-show="isMontYearSelected()" class="col-9 col-s-9">
+				<h2>Calculer les Charges du mois : {{translation(month)}}
+					{{year}} {{todo.list_charge.length}}</h2>
+				<input type="checkbox" ng-click="loadChargesTTC()"
+					ng-model="load_charges_ttc" />TTC <input type="checkbox"
+					ng-click="loadChargesHTC()" ng-model="load_charges_htc" />HTC
+				<table id="customers" style="overflow-x:auto;">
+					<tr ng-show="isHTC()">
+						<th>N°</th>
+						<th>HTC</th>
+						<th>TVA <select ng-model="selectedTva"
+							ng-change="update_tva_unit(selectedTva)">
+								<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
+						</select>
+						</th>
+						<th>DATE</th>
+					</tr>
+					<tr ng-show="isTTC()">
+						<th style="width=5px;">N°</th>
+						<th>TTC</th>
+						<th>TVA <select ng-model="selectedTva"
+							ng-change="update_tva_unit(selectedTva)">
+								<option ng-repeat="x in tva_unites" value="{{$index}}">{{x}}</option>
+						</select>
+						</th>
+						<th>DATE</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="user in getCharges()">
+						<td>{{$index + 1}})</td>
+						<td ng-show="isHTC()"><input type="text"
+							value="{{ user.htc }}" ng-keyup="updateHTC($index,$event)" /></td>
+						<td ng-show="isTTC()"><input type="text"
+							value="{{ user.ttc }}" ng-keyup="updateTTC($index,$event)" /></td>
+						<td><input type="text" value="{{ user.tva }}"
+							ng-keyup="updateTVA($index,$event)" />
+						<td><input type="text" id="calender" name="calender" value="{{ user.date | date:'dd/MM/yyyy' }}"
+							ng-keyup="updateDATE($index,calender)"></input> </td>
+						<td><input type="button" ng-click="deleteDay($index)"
+							class="delete" style="height: 18px;width: 20px;"><input type="button" ng-click="duplicateDay($index)"
+							class="duplicate" style="height: 18px;width: 20px;" ></td>
+					</tr>
+				</table>
+				<div ng-show="isTTC() || isHTC()">
+					<div  class="box2"><button ng-click="onCalc()">Calculer</button>
+					</div>
+					<div  class="box2"><button  ng-click="add()">Ajouter</button></div>
+					<div><div class="box2">somme TTC : {{sommeTTC}} &euro;</div><div class="box2">somme HTC : {{sommeHTC}} &euro;</div></div>
+					<span/><span/><span/>
+					<button ng-click="export()">export</button>
 				</div>
 			</div>
 
-			<button ng-click="export()">export</button>
 		</div>
 	</div>
 </body>
